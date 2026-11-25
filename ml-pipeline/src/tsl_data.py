@@ -7,11 +7,14 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
+from pipeline_config import load_config, project_path
+
 
 # Project paths, relative to the project root.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = PROJECT_ROOT / "data" / "original" / "w7ch"
-SPLITS_DIR = PROJECT_ROOT / "data" / "splits" / "v2"
+DATASET_CONFIG = load_config()["dataset"]
+DATA_DIR = project_path(DATASET_CONFIG["data_dir"])
+SPLITS_DIR = project_path(DATASET_CONFIG["splits"]["output_dir"])
 
 IMAGE_SIZE = 224
 

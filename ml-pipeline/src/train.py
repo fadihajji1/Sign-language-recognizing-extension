@@ -16,17 +16,15 @@ from torch.optim import AdamW
 import PIL
 import torchvision
 
+from pipeline_config import load_config, project_path
 from tsl_data import (
     IMAGE_SIZE,
     IMAGENET_MEAN,
     IMAGENET_STD,
+    SPLITS_DIR,
     create_dataloaders,
 )
 from models import build_model
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_OUTPUT = PROJECT_ROOT / "experiments" / "resnet18-baseline-v1"
 
 
 def seed_everything(seed):
@@ -65,16 +63,37 @@ def run_epoch(model, loader, loss_fn, device, optimizer=None):
 
 
 def main():
+    training_config = load_config()["training"]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--architecture", choices=("resnet18", "mobilenet_v3_small"), default="resnet18")
-    parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--batch-size", type=int, default=32)
-    parser.add_argument("--learning-rate", type=float, default=0.001)
-    parser.add_argument("--weight-decay", type=float, default=0.0001)
-    parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--num-workers", type=int, default=0)
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
+    parser.add_argument(
+        "--architecture",
+        choices=("resnet18", "mobilenet_v3_small"),
+        default=training_config["architecture"],
+    )
+    parser.add_argument("--epochs", type=int, default=training_config["epochs"])
+    parser.add_argument(
+        "--batch-size", type=int, default=training_config["batch_size"]
+    )
+    parser.add_argument(
+        "--learning-rate", type=float, default=training_config["learning_rate"]
+    )
+    parser.add_argument(
+        "--weight-decay", type=float, default=training_config["weight_decay"]
+    )
+    parser.add_argument("--seed", type=int, default=training_config["seed"])
+    parser.add_argument(
+        "--num-workers", type=int, default=training_config["num_workers"]
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=project_path(training_config["output_dir"]),
+    )
+    parser.add_argument(
+        "--device",
+        choices=("cpu", "cuda"),
+        default=training_config["device"],
+    )
     args = parser.parse_args()
     if args.epochs < 1:
         parser.error("--epochs must be at least 1")
@@ -106,7 +125,7 @@ def main():
         "device": str(device),
         "image_size": IMAGE_SIZE,
         "normalization": {"mean": IMAGENET_MEAN, "std": IMAGENET_STD},
-        "splits": "data/splits/v2",
+        "splits": str(SPLITS_DIR),
         "python": sys.version,
         "torch": torch.__version__,
         "torchvision": torchvision.__version__,

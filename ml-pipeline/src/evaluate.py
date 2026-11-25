@@ -8,20 +8,32 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from pipeline_config import load_config, project_path
 from tsl_data import create_dataloaders
 from models import build_model
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_EXPERIMENT = PROJECT_ROOT / "experiments" / "resnet18-baseline-v1"
-
-
 def main():
+    config = load_config()
+    training_config = config["training"]
+    evaluation_config = config["evaluation"]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment-dir", type=Path, default=DEFAULT_EXPERIMENT)
-    parser.add_argument("--batch-size", type=int, default=32)
-    parser.add_argument("--num-workers", type=int, default=0)
-    parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
+    parser.add_argument(
+        "--experiment-dir",
+        type=Path,
+        default=project_path(training_config["output_dir"]),
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=evaluation_config["batch_size"]
+    )
+    parser.add_argument(
+        "--num-workers", type=int, default=evaluation_config["num_workers"]
+    )
+    parser.add_argument(
+        "--device",
+        choices=("cpu", "cuda"),
+        default=evaluation_config["device"],
+    )
     args = parser.parse_args()
     experiment_dir = args.experiment_dir.resolve()
     checkpoint_path = experiment_dir / "best_model.pt"

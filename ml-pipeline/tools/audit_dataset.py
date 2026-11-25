@@ -7,9 +7,15 @@ import argparse
 import csv
 import hashlib
 import json
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+SRC_DIR = Path(__file__).resolve().parents[1] / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from pipeline_config import load_config, project_path
 from PIL import Image, UnidentifiedImageError
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tif", ".tiff"}
@@ -24,23 +30,26 @@ def sha256_file(path: Path) -> str:
 
 
 def main() -> int:
+    dataset_config = load_config()["dataset"]
     parser = argparse.ArgumentParser(
         description="Audit image files without modifying them."
     )
     parser.add_argument(
         "--data-dir",
-        required=True,
+        type=Path,
+        default=project_path(dataset_config["data_dir"]),
         help="Root folder containing the extracted dataset",
     )
     parser.add_argument(
         "--output-dir",
-        required=True,
+        type=Path,
+        default=project_path(dataset_config["audit_output_dir"]),
         help="Folder where audit reports will be written",
     )
     args = parser.parse_args()
 
-    data_dir = Path(args.data_dir).expanduser().resolve()
-    output_dir = Path(args.output_dir).expanduser().resolve()
+    data_dir = args.data_dir.expanduser().resolve()
+    output_dir = args.output_dir.expanduser().resolve()
     if not data_dir.exists() or not data_dir.is_dir():
         parser.error(
             f"Dataset folder does not exist or is not a directory: {data_dir}"

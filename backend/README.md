@@ -8,8 +8,9 @@ From the project root, with the project virtual environment active:
 
 ```powershell
 python -m pip install -r ml-pipeline/requirements.txt
-python -m uvicorn main:app --app-dir backend/app --host 127.0.0.1 --port 8000
+python backend/app
 ```
+**note:** you can change backend port from: [__main__.py](app/__main__.py)
 
 The default checkpoint is `experiments/resnet18-gpu-smoke-v1/best_model.pt`.
 Set `TSL_EXPERIMENT_DIR` to another experiment directory before starting

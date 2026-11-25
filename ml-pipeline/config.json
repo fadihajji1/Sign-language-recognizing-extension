@@ -1,0 +1,29 @@
+{
+  "dataset": {
+    "data_dir": "data/original/w7ch",
+    "audit_output_dir": "data/metadata/audit-v1",
+    "splits": {
+      "output_dir": "data/splits/v2",
+      "seed": 42,
+      "train_ratio": 0.7,
+      "validation_ratio": 0.15,
+      "test_ratio": 0.15
+    }
+  },
+  "training": {
+    "architecture": "resnet18",
+    "epochs": 20,
+    "batch_size": 16,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "seed": 42,
+    "num_workers": 0,
+    "device": "cuda",
+    "output_dir": "experiments/resnet18-local"
+  },
+  "evaluation": {
+    "batch_size": 32,
+    "num_workers": 0,
+    "device": "cuda"
+  }
+}

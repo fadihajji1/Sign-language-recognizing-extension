@@ -75,8 +75,10 @@ The checked-in audit artifacts are under `data/metadata/audit-v1/`.
 To recreate them after obtaining the W7CH dataset:
 
 ```powershell
-python ml-pipeline/tools/audit_dataset.py --data-dir data/original/w7ch --output-dir data/metadata/audit-v1
+python ml-pipeline/tools/audit_dataset.py
 ```
+
+Edit `ml-pipeline/config.json` to change the dataset or audit output paths.
 
 Review `dataset-audit.md`, `class_counts.csv`, and duplicate findings
 before proceeding. The audit is read-only with respect to original images.
@@ -87,8 +89,10 @@ Use the verified `v2` split; do not use the invalid legacy `v1` split.
 To regenerate the split:
 
 ```powershell
-python ml-pipeline/tools/create_splits.py --data-dir data/original/w7ch --output-dir data/splits/v2 --seed 42 --train 0.70 --val 0.15 --test 0.15
+python ml-pipeline/tools/create_splits.py
 ```
+
+Split paths, seed, and ratios are read from `ml-pipeline/config.json`.
 
 Review `data/splits/v2/split-summary.md` and confirm 57 classes, 70/15/15
 split proportions, and zero exact-hash leaks before training.
@@ -106,27 +110,30 @@ augmentation only to training data. The source images are not rewritten.
 
 ## Phase 4 — Train a baseline model on GPU
 
-Run a short smoke training first; choose a distinct output directory so
-existing experiments remain available:
+Train using the settings in `ml-pipeline/config.json`; choose a distinct
+output directory there to keep existing experiments available. For a short
+smoke run, lower the configured `training.epochs` value:
 
 ```powershell
-python ml-pipeline/src/train.py --architecture resnet18 --epochs 20 --batch-size 16 --device cuda --output-dir experiments/resnet18-local
+python ml-pipeline/src/train.py
 ```
 
-For a longer experiment, increase `--epochs` and use another output
-directory. The script saves the best validation checkpoint, training
-log, class mapping, configuration, device, and dependency versions. It
-selects checkpoints using validation data only. Never pass `--device cpu`
-for a GPU run.
+Training settings—including architecture, epochs, batch size, learning
+rate, weight decay, seed, device, and output directory—are in
+`ml-pipeline/config.json`. Command-line options override these defaults.
+The script saves the best validation checkpoint, training log, class
+mapping, configuration, device, and dependency versions. It selects
+checkpoints using validation data only. Never select `cpu` for a GPU run.
 
 ## Phase 5 — Held-out evaluation on GPU
 
 Evaluate each selected checkpoint once, after model choices are fixed:
 
 ```powershell
-python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/resnet18-local
+python ml-pipeline/src/evaluate.py
 ```
 
+Evaluation uses the configured training output directory by default.
 This writes test metrics, per-class metrics, confusion matrix, all test
 predictions, and a path-linked misclassification list. Test results are
 for final reporting, not repeated model selection. Report that signer
@@ -134,11 +141,14 @@ IDs are unavailable and the split may contain signer overlap.
 
 ## Phase 6 — Model comparison on GPU
 
-Train the lightweight comparison with the same split, seed, and schedule:
+Train the lightweight comparison with the same split, seed, and schedule.
+Change `training.architecture` to `mobilenet_v3_small` and
+`training.output_dir` to `experiments/mobilenetv3-local` in
+`ml-pipeline/config.json`, then run:
 
 ```powershell
-python ml-pipeline/src/train.py --architecture mobilenet_v3_small --epochs 20 --batch-size 16 --device cuda --output-dir experiments/mobilenetv3-local
-python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/mobilenetv3-local
+python ml-pipeline/src/train.py
+python ml-pipeline/src/evaluate.py
 python ml-pipeline/src/compare_experiments.py experiments/resnet18-local experiments/mobilenetv3-local
 ```
 
@@ -156,7 +166,7 @@ After Phase 4, start the API with the newly trained checkpoint. Activate
 .\.venv\Scripts\Activate.ps1
 $env:TSL_EXPERIMENT_DIR = "experiments/resnet18-local"
 $env:TSL_DEVICE = "cuda"
-python -m uvicorn main:app --app-dir backend/app --host 127.0.0.1 --port 8000
+python backend/app
 ```
 
 Available endpoints are `GET /health`, `GET /model`, and
@@ -177,13 +187,14 @@ Install and run it from the project root in PowerShell:
 ```powershell
 cd frontend
 pnpm install
-$env:VITE_TSL_API_URL = 'http://127.0.0.1:8000'
-pnpm dev --host 127.0.0.1 --port 5173
+pnpm dev
 ```
 
 Open the Vite URL printed in the terminal (normally
 `http://localhost:5173`). Camera access requires a secure browser context
-such as localhost and user permission.
+such as localhost and user permission. The API URL defaults to
+`http://127.0.0.1:8000`; set `VITE_TSL_API_URL` only when the backend uses
+a different URL.
 
 The interface is split into `BrandHeader`, `CameraRecognition`,
 `RecognitionPanel`, `GeneratedOutput`, and `AboutNote` components under

@@ -6,9 +6,15 @@ import csv
 import hashlib
 import json
 import random
+import sys
 from collections import defaultdict
 from pathlib import Path
 
+SRC_DIR = Path(__file__).resolve().parents[1] / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from pipeline_config import load_config, project_path
 from PIL import Image
 
 EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tif", ".tiff"}
@@ -23,13 +29,22 @@ def sha256(path):
 
 
 def main():
+    config = load_config()
+    dataset_config = config["dataset"]
+    split_config = dataset_config["splits"]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-dir", required=True)
-    parser.add_argument("--output-dir", default="data/splits/v1")
-    parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--train", type=float, default=0.70)
-    parser.add_argument("--val", type=float, default=0.15)
-    parser.add_argument("--test", type=float, default=0.15)
+    parser.add_argument(
+        "--data-dir", type=Path, default=project_path(dataset_config["data_dir"])
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=project_path(split_config["output_dir"]),
+    )
+    parser.add_argument("--seed", type=int, default=split_config["seed"])
+    parser.add_argument("--train", type=float, default=split_config["train_ratio"])
+    parser.add_argument("--val", type=float, default=split_config["validation_ratio"])
+    parser.add_argument("--test", type=float, default=split_config["test_ratio"])
     args = parser.parse_args()
 
     if (
@@ -38,8 +53,8 @@ def main():
     ):
         parser.error("train, val, and test ratios must be nonnegative and sum to 1")
 
-    data = Path(args.data_dir).resolve()
-    output = Path(args.output_dir).resolve()
+    data = args.data_dir.resolve()
+    output = args.output_dir.resolve()
     if not data.is_dir():
         parser.error(f"Dataset folder not found: {data}")
 

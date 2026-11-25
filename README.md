@@ -13,6 +13,8 @@ Webcam → browser hand tracking and overlay → sampled square frame
        → FastAPI → PyTorch classifier on CUDA → predicted sign and confidence
 ```
 
+![gesture recognition](assets/image.png)
+
 The W7CH dataset contains 4,423 labeled still images across 57 signs. The current train/validation/test split is not signer independent because signer IDs are unavailable. The system's held-out image results should not be treated as a guarantee of live-camera accuracy.
 
 Implementation details and phase status are in [TSL-Recognition-Implementation-Progress.md](TSL-Recognition-Implementation-Progress.md). The contributor runbook is [setup.md](setup.md), the plain-language progress explanation is [PROJECT-PROGRESS-EXPLANATION.md](PROJECT-PROGRESS-EXPLANATION.md), and the academic draft is [docs/RESEARCH-REPORT-DRAFT.md](docs/RESEARCH-REPORT-DRAFT.md).
@@ -23,6 +25,7 @@ Implementation details and phase status are in [TSL-Recognition-Implementation-P
 backend/
 └── app/main.py                  FastAPI API and CUDA inference
 ml-pipeline/
+├── config.json                 Dataset, split, training, and evaluation settings
 ├── src/                         Dataset loader, models, train/evaluate scripts
 ├── tools/                       Dataset audit and split-generation scripts
 ├── archive/                     Preserved legacy helper
@@ -64,11 +67,7 @@ OpenCV is not currently used by the implementation.
 
 Use Windows PowerShell. Install Python 3.15, Node.js, pnpm 9.15.9, Git, and NVIDIA drivers first. The pinned PyTorch CUDA wheel contains a CPython 3.15 extension. Training, evaluation, and model inference require an NVIDIA GPU with a working CUDA driver.
 
-Enable the pinned pnpm version through Corepack:
-
 ```powershell
-corepack enable
-corepack prepare pnpm@9.15.9 --activate
 python --version
 node --version
 pnpm --version
@@ -98,11 +97,15 @@ Download the [W7CH dataset](https://github.com/W7CH/First-ever-Tunisian-Sign-Lan
 
 Audit the dataset, create the versioned splits, then train and evaluate a model:
 
+Pipeline paths, split ratios, and model settings (including learning rate
+and weight decay) are in [`ml-pipeline/config.json`](ml-pipeline\config.json). The scripts use these
+values by default; their CLI options can still override them.
+
 ```powershell
-python ml-pipeline/tools/audit_dataset.py --data-dir data/original/w7ch --output-dir data/metadata/audit-v1
-python ml-pipeline/tools/create_splits.py --data-dir data/original/w7ch --output-dir data/splits/v2 --seed 42 --train 0.70 --val 0.15 --test 0.15
-python ml-pipeline/src/train.py --architecture resnet18 --epochs 20 --batch-size 16 --device cuda --output-dir experiments/resnet18-local
-python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/resnet18-local
+python ml-pipeline/tools/audit_dataset.py
+python ml-pipeline/tools/create_splits.py
+python ml-pipeline/src/train.py
+python ml-pipeline/src/evaluate.py
 ```
 
 ### 3. Install the frontend separately
@@ -113,8 +116,8 @@ Open a second PowerShell window, go to the frontend folder, and install its Node
 cd frontend
 pnpm install
 ```
-
-### 4. Run the backend and frontend separately
+---
+### 4. Run the full App (backend and frontend)
 
 In the first window, still at the project root, activate `.venv` if needed, select the checkpoint, then start FastAPI:
 
@@ -122,14 +125,16 @@ In the first window, still at the project root, activate `.venv` if needed, sele
 .\.venv\Scripts\Activate.ps1
 $env:TSL_DEVICE = 'cuda'
 $env:TSL_EXPERIMENT_DIR = 'experiments/resnet18-local'
-python -m uvicorn main:app --app-dir backend/app --host 127.0.0.1 --port 8000
+python backend/app
 ```
+**note:** you can change backend port from: [`__main__.py`](backend/app/__main__.py)
 
-In the frontend window, run Vite and point it at the API:
+In the frontend window, from the `frontend` directory, start Vite. The API URL defaults to `http://127.0.0.1:8000`:
 
 ```powershell
-$env:VITE_TSL_API_URL = 'http://127.0.0.1:8000'
-pnpm dev --host 127.0.0.1 --port 5173
+pnpm dev
 ```
+
+Set `VITE_TSL_API_URL` only if the backend is running at a different URL. You can change the frontend port in [vite.config.ts](frontend/vite.config.ts).
 
 Open `http://127.0.0.1:5173`. Stop each service with `Ctrl+C` in its own PowerShell window. The detailed phase-by-phase instructions are in [setup.md](setup.md).
