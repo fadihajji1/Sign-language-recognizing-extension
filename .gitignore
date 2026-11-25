@@ -1,0 +1,47 @@
+# Local configuration and run state
+.env
+.env.*
+!.env.example
+!.env.*.example
+.local/
+*.log
+
+# Python environments, caches, and build artifacts
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+build/
+dist/
+*.egg-info/
+
+# Local source datasets and generated manifests/reports
+data/original/*
+!data/original/w7ch/
+data/original/w7ch/*
+!data/original/w7ch/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/splits/*
+!data/splits/.gitkeep
+data/metadata/audit-v1/
+
+# Locally generated model weights and experiment outputs
+experiments/
+
+# Frontend dependencies and generated output
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/

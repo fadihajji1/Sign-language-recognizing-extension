@@ -1,0 +1,24 @@
+.camera-workspace { overflow: hidden; border: 1px solid #e7ebe5; border-radius: 9px; background: #fff; box-shadow: 0 4px 18px #24382a06; }
+.camera-panel { padding: 19px 20px 15px; }
+.camera-stage { position: relative; display: flex; height: min(62vw, 410px); min-height: 300px; align-items: center; justify-content: center; overflow: hidden; border-radius: 7px; background: #17251d; }
+.camera-stage video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.camera-empty { display: flex; flex-direction: column; align-items: center; color: #c9d7cc; text-align: center; }
+.camera-glyph { display: grid; width: 52px; height: 52px; place-items: center; margin-bottom: 12px; border-radius: 50%; background: #294636; color: #c4dfca; font-size: 24px; }
+.camera-empty p { margin: 0 0 6px; color: #e3ece3; font-size: 13px; font-weight: 600; }
+.camera-empty > span:last-of-type { color: #a6b5a9; font-size: 10px; }
+.start-camera, .stop-camera { border: 0; border-radius: 5px; font: 600 10px var(--sans); cursor: pointer; }
+.start-camera { margin-top: 18px; padding: 10px 15px; background: #eaf4eb; color: #275d3d; }
+.start-camera:hover { background: #fff; }
+.start-camera:disabled { opacity: .55; cursor: wait; }
+.stop-camera { position: absolute; z-index: 3; right: 11px; bottom: 11px; padding: 8px 11px; background: #14251dde; color: #f1f7f1; }
+.camera-live { position: absolute; z-index: 2; top: 11px; left: 11px; padding: 6px 8px; border-radius: 3px; background: #14251dd9; color: #e1efe3; font: 8px var(--mono); letter-spacing: .05em; }
+.camera-live::before { display: inline-block; width: 5px; height: 5px; margin-right: 6px; border-radius: 50%; background: #69a77e; content: ''; }
+.hand-overlay { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); pointer-events: none; }
+.inline-error { margin: 9px 0 0; padding: 8px 9px; border-radius: 4px; background: #fcf4ec; color: #925b3a; font-size: 10px; line-height: 1.4; }
+.privacy-footnote { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 0; padding-top: 13px; color: #97a098; font-size: 9px; }
+
+@media (max-width: 760px) { .camera-stage { height: 56vw; min-height: 270px; } }
+@media (max-width: 480px) {
+  .camera-panel { padding: 16px; }
+  .camera-stage { min-height: 235px; }
+}

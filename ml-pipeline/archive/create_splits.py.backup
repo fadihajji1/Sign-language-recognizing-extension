@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+"""Create reproducible train/validation/test CSV manifests without changing source images."""
+import argparse, csv, hashlib, json, random
+from collections import defaultdict
+from pathlib import Path
+from PIL import Image
+EXTS={".jpg",".jpeg",".png",".bmp",".webp",".tif",".tiff"}
+def sha256(p):
+    h=hashlib.sha256()
+    with p.open("rb") as f:
+        for chunk in iter(lambda:f.read(1024*1024),b""): h.update(chunk)
+    return h.hexdigest()
+def main():
+    ap=argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--data-dir",required=True)
+    ap.add_argument("--output-dir",default="data/splits/v1")
+    ap.add_argument("--seed",type=int,default=42)
+    ap.add_argument("--train",type=float,default=.70)
+    ap.add_argument("--val",type=float,default=.15)
+    ap.add_argument("--test",type=float,default=.15)
+    args=ap.parse_args()
+    if any(x<0 for x in (args.train,args.val,args.test)) or abs(args.train+args.val+args.test-1)>1e-8:
+        ap.error("train, val, and test ratios must be nonnegative and sum to 1")
+    data=Path(args.data_dir).resolve(); out=Path(args.output_dir).resolve()
+    if not data.is_dir(): ap.error(f"Dataset folder not found: {data}")
+    try:
+        out.relative_to(data); ap.error("Output must be outside the original dataset folder.")
+    except ValueError: pass
+    files=sorted(p for p in data.rglob("*") if p.is_file() and p.suffix.lower() in EXTS)
+    groups=defaultdict(list); skipped=[]; class_dirs=set()
+    for p in files:
+        rel=p.relative_to(data).as_posix(); parts=Path(rel).parts
+        if len(parts)<2:
+            skipped.append({"path":rel,"reason":"root-level image has no verified class label; excluded"})
+            continue
+        label=parts[0]
+        try:
+            with Image.open(p) as im: im.verify()
+            with Image.open(p) as im: width,height=im.size
+        except Exception as e:
+            skipped.append({"path":rel,"reason":f"unreadable: {e}"}); continue
+        class_dirs.add(label)
+        digest=sha256(p)
+        groups[(label,digest)].append({"relative_path":rel,"label":label,"sha256":digest,"width":width,"height":height})
+    if not groups: ap.error("No eligible images found. Check the folder layout.")
+    per_class=defaultdict(list)
+    for (label,digest),rows in groups.items(): per_class[label].append((digest,rows))
+    rng=random.Random(args.seed); splits={"train":[],"val":[],"test":[]}; summary={}
+    for label in sorted(per_class,key=str.casefold):
+        gs=per_class[label]; rng.shuffle(gs); n=len(gs)
+        if n>=3:
+            nt=max(1,round(n*args.train)); nv=max(1,round(n*args.val)); ntest=n-nt-nv
+            while ntest<1:
+                if nt>1: nt-=1
+                elif nv>1: nv-=1
+                else: break
+                ntest=n-nt-nv
+            while nt+nv+ntest>n:
+                if nt>1: nt-=1
+                elif nv>1: nv-=1
+                else: ntest-=1
+            while nt+nv+ntest<n: nt+=1
+        else: nt,nv,ntest=n,0,0
+        chunks={"train":gs[:nt],"val":gs[nt:nt+nv],"test":gs[nt+nv:]}
+        for s,chunk in chunks.items():
+            for _,rows in chunk:
+                for row in rows: splits[s].append({**row,"split":s})
+        summary[label]={"unique_hash_groups":n,**{s:sum(len(r) for _,r in chunks[s]) for s in chunks}}
+    out.mkdir(parents=True,exist_ok=True)
+    fields=["relative_path","label","sha256","width","height","split"]
+    for s,rows in splits.items():
+        rows.sort(key=lambda x:(x["label"].casefold(),x["relative_path"].casefold()))
+        with (out/f"{s}.csv").open("w",newline="",encoding="utf-8-sig") as f:
+            w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(rows)
+    hash_splits=defaultdict(set)
+    for s,rows in splits.items():
+        for r in rows: hash_splits[r["sha256"]].add(s)
+    leaks={h:list(v) for h,v in hash_splits.items() if len(v)>1}
+    report={"seed":args.seed,"source_directory":str(data),"counts":{s:len(v) for s,v in splits.items()},
+            "eligible_images":sum(map(len,splits.values())),"class_count":len(summary),
+            "excluded_or_unreadable":skipped,"duplicate_hash_leaks":len(leaks),"classes":summary,
+            "warnings":["Class labels are inferred from the first folder below data-dir; verify this matches the official dataset layout.",
+            "Root-level images are excluded because their class label is unverified.",
+            "Identical file contents are kept in the same split; visually identical re-encodings are not detected.",
+            "Signer IDs are unavailable, so this is not signer-independent evaluation.",
+            "Classes with fewer than three unique hash groups cannot be represented in all three splits."]}
+    (out/"split-summary.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
+    lines=["# Split Generation Report","",f"- Eligible images: **{report['eligible_images']}**",f"- Classes: **{report['class_count']}**",
+    f"- Train: **{report['counts']['train']}**",f"- Validation: **{report['counts']['val']}**",f"- Test: **{report['counts']['test']}**",
+    f"- Exact duplicate hash leaks: **{len(leaks)}**","","## Per-class counts","","| Class | Unique hash groups | Train | Validation | Test |","|---|---:|---:|---:|---:|"]
+    for label,v in sorted(summary.items(),key=lambda x:x[0].casefold()):
+        lines.append(f"| `{label}` | {v['unique_hash_groups']} | {v['train']} | {v['val']} | {v['test']} |")
+    lines+=["","## Warnings"]+["- "+x for x in report["warnings"]]
+    if skipped: lines+=["","## Excluded files / issues"]+[f"- `{x['path']}`: {x['reason']}" for x in skipped]
+    if leaks: lines+=["","**ERROR:** identical hashes occur across splits; do not train on these manifests."]
+    (out/"split-summary.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
+    print(f"Created manifests in {out}")
+    print(f"Eligible images: {report['eligible_images']} | classes: {report['class_count']} | train/val/test: {report['counts']['train']}/{report['counts']['val']}/{report['counts']['test']}")
+    print(f"Exact duplicate hashes across splits: {len(leaks)}")
+    print("Review split-summary.md before training.")
+    return 2 if leaks else 0
+if __name__=="__main__": raise SystemExit(main())

@@ -1,0 +1,8 @@
+.panel-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.panel-title { display: flex; align-items: center; gap: 9px; }
+.panel-title h3 { margin: 0; color: #34473a; font-size: 13px; font-weight: 600; }
+.step-badge { padding: 4px 5px; border-radius: 4px; background: #326f52; color: #fff; font: 8px var(--mono); }
+.step-badge.muted { background: #eef1ed; color: #829087; }
+.panel-hint { color: #9ba59d; font: 8px var(--mono); letter-spacing: .03em; }
+
+@media (max-width: 480px) { .panel-hint { font-size: 7px; } }
