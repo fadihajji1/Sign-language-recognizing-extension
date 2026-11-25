@@ -122,7 +122,7 @@ Install and verify:
 - Git
 - Python
 - Node.js
-- npm
+- pnpm
 - VS Code  
 
 
@@ -470,9 +470,9 @@ Check:
 
 `node --version`
 
-Check npm:
+Check pnpm:
 
-`npm --version`
+`pnpm --version`
 
 Current Vite versions require a recent Node.js version. Before creating the frontend, verify the current requirement in the official Vite documentation:
 
@@ -485,17 +485,17 @@ Current Vite versions require a recent Node.js version. Before creating the fron
 From the project root:
 
 ```
-npm create vite@latest frontend -- --template react-ts
+pnpm create vite frontend --template react-ts
 ```
 
 Then:
 
 ```
 cd frontend
-npm install
+pnpm install
 
 # Start the frontend:
-npm run dev
+pnpm dev
 ```
 
 Vite should display a local address similar to:
@@ -541,7 +541,7 @@ Used for:
 Used for:
 
 `cd frontend`  
-`npm run dev`
+`pnpm dev`
 
 This makes the three parts of the system easy to monitor.
 
@@ -1600,10 +1600,10 @@ pip freeze > ml-pipeline\requirements.txt
 From the project root:
 
 ```
-npm create vite@latest frontend -- --template react-ts
+pnpm create vite frontend --template react-ts
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Verify the React application opens in the browser.

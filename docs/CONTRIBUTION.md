@@ -132,7 +132,7 @@ Install and verify:
 - Git
 - Python
 - Node.js
-- npm
+- pnpm
 - VS Code
 
 ### Phase 2 — Project Structure
@@ -259,7 +259,7 @@ Before starting, install:
 - Git
 - Python 3.11 or 3.12
 - Node.js
-- npm
+- pnpm
 - VS Code
 - A modern web browser
 
@@ -291,10 +291,10 @@ Check Node.js:
 node --version
 ```
 
-Check npm:
+Check pnpm:
 
 ```powershell
-npm --version
+pnpm --version
 ```
 
 All commands should return a version number.
@@ -532,7 +532,7 @@ Verify:
 
 ```powershell
 node --version
-npm --version
+pnpm --version
 ```
 
 Vite's current requirements should be checked in the official documentation:
@@ -542,20 +542,20 @@ Vite's current requirements should be checked in the official documentation:
 Create the React application from the project root:
 
 ```powershell
-npm create vite@latest frontend -- --template react-ts
+pnpm create vite frontend --template react-ts
 ```
 
 Then:
 
 ```powershell
 cd frontend
-npm install
+pnpm install
 ```
 
 Start the development server:
 
 ```powershell
-npm run dev
+pnpm dev
 ```
 
 The terminal should provide a local URL similar to:
@@ -606,7 +606,7 @@ Used for:
 
 ```powershell
 cd frontend
-npm run dev
+pnpm dev
 ```
 
 This separation makes it easier to monitor each part of the system.

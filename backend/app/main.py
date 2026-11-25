@@ -96,7 +96,8 @@ async def health():
 async def model_info():
     bundle = app.state.bundle
     if bundle is None:
-        raise HTTPException(status_code=503, detail="Model is unavailable")
+        error = app.state.model_error or "Unknown model-loading error"
+        raise HTTPException(status_code=503, detail=f"Model is unavailable: {error}")
     config = bundle["config"]
     return {
         "name": "TSL isolated-sign classifier",
@@ -114,7 +115,8 @@ async def model_info():
 async def predict(image: UploadFile = File(...)):
     bundle = app.state.bundle
     if bundle is None:
-        raise HTTPException(status_code=503, detail="Model is unavailable")
+        error = app.state.model_error or "Unknown model-loading error"
+        raise HTTPException(status_code=503, detail=f"Model is unavailable: {error}")
     if image.content_type and not image.content_type.startswith("image/"):
         raise HTTPException(status_code=415, detail="Upload must be an image")
     payload = await image.read(MAX_UPLOAD_BYTES + 1)

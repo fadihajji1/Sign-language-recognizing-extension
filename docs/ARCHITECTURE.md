@@ -64,7 +64,7 @@ is the cleaner architecture.
 
 Node.js is still used for:
 
-- npm
+- pnpm
 - Vite
 - React development tooling
 - frontend dependency management

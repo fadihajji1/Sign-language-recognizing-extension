@@ -29,6 +29,8 @@ ml-pipeline/
 ├── requirements.txt             CUDA PyTorch and API dependencies
 └── requirements-audit.txt       Lightweight audit dependencies
 frontend/
+├── package.json                 Frontend dependencies and pnpm scripts
+├── pnpm-lock.yaml               Locked frontend dependency versions
 ├── public/hand_landmarker.task  Browser hand-tracking model
 └── src/
     ├── components/              Each component has its own folder and CSS
@@ -40,36 +42,45 @@ data/
 └── splits/                      Versioned data manifests
 experiments/                     Model checkpoints and evaluation outputs
 docs/                            Technical, contribution, and research documents
-scripts/                         Numbered PowerShell shortcuts
-.env.example                     Template for local configuration
 ```
 
 Original data and experiment outputs are kept separate from source code. Large data and experiment artifacts are excluded from Git. Each frontend component lives in its own directory with its `.tsx` and `.css` files; shared panel styles are in `frontend/src/components/shared/PanelStyles.css`.
 
 ## Technologies used
 
-| Area | Technology |
-|---|---|
-| Frontend | React, TypeScript, Vite, Node.js/npm |
-| Camera | Browser MediaDevices API |
-| Hand landmarks | MediaPipe Tasks Vision, GPU delegate in the browser |
-| API | Python, FastAPI, Uvicorn |
-| Image classification | PyTorch and Torchvision, CUDA GPU |
-| Image handling | Pillow |
-| Dataset and metrics | pandas, NumPy |
+| Area                 | Technology                                          |
+| -------------------- | --------------------------------------------------- |
+| Frontend             | React, TypeScript, Vite, Node.js, pnpm              |
+| Camera               | Browser MediaDevices API                            |
+| Hand landmarks       | MediaPipe Tasks Vision, GPU delegate in the browser |
+| API                  | Python, FastAPI, Uvicorn                            |
+| Image classification | PyTorch and Torchvision, CUDA GPU                   |
+| Image handling       | Pillow                                              |
+| Dataset and metrics  | pandas, NumPy                                       |
 
 OpenCV is not currently used by the implementation.
 
 ## Quick manual installation
 
-Use Windows PowerShell from the project root. Training, evaluation, and model inference require an NVIDIA GPU with a working CUDA driver. Install Python supported by the pinned PyTorch CUDA wheels, Node.js/npm, and NVIDIA drivers first.
+Use Windows PowerShell. Install Python 3.15, Node.js, pnpm 9.15.9, Git, and NVIDIA drivers first. The pinned PyTorch CUDA wheel contains a CPython 3.15 extension. Training, evaluation, and model inference require an NVIDIA GPU with a working CUDA driver.
+
+Enable the pinned pnpm version through Corepack:
+
+```powershell
+corepack enable
+corepack prepare pnpm@9.15.9 --activate
+python --version
+node --version
+pnpm --version
+```
 
 ### 1. Set up the Python backend
 
 Create a Python environment and install the backend and model dependencies:
 
 ```powershell
-py -3 -m venv .venv
+python --version  # confirm Python 3.15.x
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r ml-pipeline/requirements.txt
@@ -85,9 +96,11 @@ python -c "import torch; print('CUDA available:', torch.cuda.is_available()); pr
 
 Download the [W7CH dataset](https://github.com/W7CH/First-ever-Tunisian-Sign-Language-Dataset) into `data/original/w7ch/`, preserving its folders. Do not edit the original images.
 
-If `data/splits/v2/` is missing, follow Phases 1–3 in [setup.md](setup.md) to audit the data and create the manifests. If no model checkpoint is available, train and evaluate it manually:
+Audit the dataset, create the versioned splits, then train and evaluate a model:
 
 ```powershell
+python ml-pipeline/tools/audit_dataset.py --data-dir data/original/w7ch --output-dir data/metadata/audit-v1
+python ml-pipeline/tools/create_splits.py --data-dir data/original/w7ch --output-dir data/splits/v2 --seed 42 --train 0.70 --val 0.15 --test 0.15
 python ml-pipeline/src/train.py --architecture resnet18 --epochs 20 --batch-size 16 --device cuda --output-dir experiments/resnet18-local
 python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/resnet18-local
 ```
@@ -97,8 +110,8 @@ python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/re
 Open a second PowerShell window, go to the frontend folder, and install its Node.js packages:
 
 ```powershell
-Set-Location frontend
-npm install
+cd frontend
+pnpm install
 ```
 
 ### 4. Run the backend and frontend separately
@@ -116,7 +129,7 @@ In the frontend window, run Vite and point it at the API:
 
 ```powershell
 $env:VITE_TSL_API_URL = 'http://127.0.0.1:8000'
-npm run dev -- --host 127.0.0.1 --port 5173
+pnpm dev --host 127.0.0.1 --port 5173
 ```
 
 Open `http://127.0.0.1:5173`. Stop each service with `Ctrl+C` in its own PowerShell window. The detailed phase-by-phase instructions are in [setup.md](setup.md).

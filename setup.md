@@ -1,13 +1,24 @@
 # Contributor setup and phase-by-phase runbook
 
-Updated 24 November 2026. Phases 0–9 are implemented. A Phase 10
+Updated 25 November 2026. Phases 0–9 are implemented. A Phase 10
 research-report draft is prepared for review.
 
 ## 0. Environment and first-time setup
 
-Use Windows PowerShell. Install a Python version supported by the pinned
-PyTorch CUDA wheels, Node.js/npm, and NVIDIA drivers. Training, evaluation,
-and API inference require a CUDA-capable NVIDIA GPU.
+Use Windows PowerShell. The pinned PyTorch CUDA wheel contains a CPython
+3.15 extension, so use Python 3.15 for the backend environment. Also install
+Node.js, pnpm 9.15.9, Git, and NVIDIA drivers. Training, evaluation, and API
+inference require a CUDA-capable NVIDIA GPU.
+
+Enable the pnpm version pinned in `frontend/package.json`:
+
+```powershell
+corepack enable
+corepack prepare pnpm@9.15.9 --activate
+python --version
+node --version
+pnpm --version
+```
 
 ### Backend Python environment
 
@@ -15,7 +26,9 @@ From the project root, create the Python environment and install the backend,
 model, and dataset dependencies:
 
 ```powershell
-py -3 -m venv .venv
+# If a virtual environment is already active, leave it first.
+python --version  # confirm Python 3.15.x
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r ml-pipeline/requirements.txt
@@ -33,7 +46,7 @@ Open a separate PowerShell window, then install the frontend dependencies:
 
 ```powershell
 Set-Location frontend
-npm install
+pnpm install
 ```
 
 The W7CH source dataset is not included in Git. Obtain it from the
@@ -97,7 +110,7 @@ Run a short smoke training first; choose a distinct output directory so
 existing experiments remain available:
 
 ```powershell
-python ml-pipeline/src/train.py --architecture resnet18 --epochs 20 --batch-size 16 --device cuda --output-dir experiments/resnet18-gpu-smoke-v1
+python ml-pipeline/src/train.py --architecture resnet18 --epochs 20 --batch-size 16 --device cuda --output-dir experiments/resnet18-local
 ```
 
 For a longer experiment, increase `--epochs` and use another output
@@ -111,7 +124,7 @@ for a GPU run.
 Evaluate each selected checkpoint once, after model choices are fixed:
 
 ```powershell
-python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/resnet18-gpu-smoke-v1
+python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/resnet18-local
 ```
 
 This writes test metrics, per-class metrics, confusion matrix, all test
@@ -124,9 +137,9 @@ IDs are unavailable and the split may contain signer overlap.
 Train the lightweight comparison with the same split, seed, and schedule:
 
 ```powershell
-python ml-pipeline/src/train.py --architecture mobilenet_v3_small --epochs 20 --batch-size 16 --device cuda --output-dir experiments/mobilenetv3-gpu-smoke-v1
-python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/mobilenetv3-gpu-smoke-v1
-python ml-pipeline/src/compare_experiments.py experiments/resnet18-gpu-smoke-v1 experiments/mobilenetv3-gpu-smoke-v1
+python ml-pipeline/src/train.py --architecture mobilenet_v3_small --epochs 20 --batch-size 16 --device cuda --output-dir experiments/mobilenetv3-local
+python ml-pipeline/src/evaluate.py --device cuda --experiment-dir experiments/mobilenetv3-local
+python ml-pipeline/src/compare_experiments.py experiments/resnet18-local experiments/mobilenetv3-local
 ```
 
 The generated comparison CSV includes accuracy, macro metrics, model
@@ -136,11 +149,12 @@ architecture claims.
 
 ## Phase 7 — Run the FastAPI inference service
 
-By default, the API loads `experiments/resnet18-gpu-smoke-v1/best_model.pt`
-and requires CUDA. Select a different experiment if desired:
+After Phase 4, start the API with the newly trained checkpoint. Activate
+`.venv` from the project root before running these commands:
 
 ```powershell
-$env:TSL_EXPERIMENT_DIR = "experiments/resnet18-gpu-smoke-v1"
+.\.venv\Scripts\Activate.ps1
+$env:TSL_EXPERIMENT_DIR = "experiments/resnet18-local"
 $env:TSL_DEVICE = "cuda"
 python -m uvicorn main:app --app-dir backend/app --host 127.0.0.1 --port 8000
 ```
@@ -162,8 +176,9 @@ Install and run it from the project root in PowerShell:
 
 ```powershell
 cd frontend
-npm install
-npm run dev
+pnpm install
+$env:VITE_TSL_API_URL = 'http://127.0.0.1:8000'
+pnpm dev --host 127.0.0.1 --port 5173
 ```
 
 Open the Vite URL printed in the terminal (normally

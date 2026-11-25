@@ -1,0 +1,369 @@
+{
+  "seed": 42,
+  "source_directory": "C:\\Users\\CALLMEFAD\\Desktop\\tsl-academic-project-docs\\data\\original\\w7ch",
+  "counts": {
+    "train": 3096,
+    "val": 663,
+    "test": 664
+  },
+  "eligible_images": 4423,
+  "class_count": 57,
+  "excluded_or_unreadable": [
+    {
+      "path": "interfaces.png",
+      "reason": "root-level image has no verified class label; excluded"
+    }
+  ],
+  "duplicate_hash_leaks": 0,
+  "classes": {
+    "3aslema": {
+      "unique_hash_groups": 51,
+      "train": 36,
+      "val": 8,
+      "test": 7
+    },
+    "3ayla": {
+      "unique_hash_groups": 81,
+      "train": 57,
+      "val": 12,
+      "test": 12
+    },
+    "5adamet": {
+      "unique_hash_groups": 28,
+      "train": 20,
+      "val": 4,
+      "test": 4
+    },
+    "5al-3am": {
+      "unique_hash_groups": 191,
+      "train": 134,
+      "val": 29,
+      "test": 28
+    },
+    "5mis": {
+      "unique_hash_groups": 54,
+      "train": 38,
+      "val": 8,
+      "test": 8
+    },
+    "5ou": {
+      "unique_hash_groups": 182,
+      "train": 130,
+      "val": 28,
+      "test": 28
+    },
+    "a7ad": {
+      "unique_hash_groups": 39,
+      "train": 27,
+      "val": 6,
+      "test": 6
+    },
+    "assam": {
+      "unique_hash_groups": 35,
+      "train": 24,
+      "val": 5,
+      "test": 6
+    },
+    "baladya": {
+      "unique_hash_groups": 109,
+      "train": 76,
+      "val": 16,
+      "test": 17
+    },
+    "banka": {
+      "unique_hash_groups": 87,
+      "train": 61,
+      "val": 13,
+      "test": 13
+    },
+    "barnamjk": {
+      "unique_hash_groups": 91,
+      "train": 64,
+      "val": 14,
+      "test": 13
+    },
+    "bent": {
+      "unique_hash_groups": 224,
+      "train": 157,
+      "val": 34,
+      "test": 33
+    },
+    "bou": {
+      "unique_hash_groups": 138,
+      "train": 97,
+      "val": 21,
+      "test": 20
+    },
+    "bousta": {
+      "unique_hash_groups": 50,
+      "train": 35,
+      "val": 8,
+      "test": 7
+    },
+    "car": {
+      "unique_hash_groups": 33,
+      "train": 23,
+      "val": 5,
+      "test": 5
+    },
+    "chabeb": {
+      "unique_hash_groups": 53,
+      "train": 37,
+      "val": 8,
+      "test": 8
+    },
+    "cv": {
+      "unique_hash_groups": 56,
+      "train": 39,
+      "val": 8,
+      "test": 9
+    },
+    "dar": {
+      "unique_hash_groups": 79,
+      "train": 55,
+      "val": 12,
+      "test": 12
+    },
+    "demande": {
+      "unique_hash_groups": 34,
+      "train": 24,
+      "val": 5,
+      "test": 5
+    },
+    "eben": {
+      "unique_hash_groups": 164,
+      "train": 115,
+      "val": 25,
+      "test": 24
+    },
+    "enti": {
+      "unique_hash_groups": 57,
+      "train": 40,
+      "val": 9,
+      "test": 8
+    },
+    "erb3a": {
+      "unique_hash_groups": 66,
+      "train": 46,
+      "val": 10,
+      "test": 10
+    },
+    "jad": {
+      "unique_hash_groups": 172,
+      "train": 120,
+      "val": 26,
+      "test": 26
+    },
+    "jadda": {
+      "unique_hash_groups": 154,
+      "train": 108,
+      "val": 23,
+      "test": 23
+    },
+    "jom3a": {
+      "unique_hash_groups": 56,
+      "train": 39,
+      "val": 8,
+      "test": 9
+    },
+    "karhba": {
+      "unique_hash_groups": 27,
+      "train": 19,
+      "val": 4,
+      "test": 4
+    },
+    "labes": {
+      "unique_hash_groups": 21,
+      "train": 15,
+      "val": 3,
+      "test": 3
+    },
+    "louage": {
+      "unique_hash_groups": 35,
+      "train": 27,
+      "val": 5,
+      "test": 6
+    },
+    "lyoum": {
+      "unique_hash_groups": 50,
+      "train": 35,
+      "val": 8,
+      "test": 7
+    },
+    "ma7kma": {
+      "unique_hash_groups": 44,
+      "train": 31,
+      "val": 7,
+      "test": 6
+    },
+    "mar2a": {
+      "unique_hash_groups": 143,
+      "train": 100,
+      "val": 21,
+      "test": 22
+    },
+    "mar7ba": {
+      "unique_hash_groups": 15,
+      "train": 10,
+      "val": 2,
+      "test": 3
+    },
+    "mostawsaf": {
+      "unique_hash_groups": 111,
+      "train": 78,
+      "val": 17,
+      "test": 16
+    },
+    "métro": {
+      "unique_hash_groups": 52,
+      "train": 36,
+      "val": 8,
+      "test": 8
+    },
+    "n3awnek": {
+      "unique_hash_groups": 87,
+      "train": 61,
+      "val": 13,
+      "test": 13
+    },
+    "nekteblk": {
+      "unique_hash_groups": 56,
+      "train": 39,
+      "val": 8,
+      "test": 9
+    },
+    "non": {
+      "unique_hash_groups": 78,
+      "train": 55,
+      "val": 12,
+      "test": 11
+    },
+    "o5t": {
+      "unique_hash_groups": 161,
+      "train": 113,
+      "val": 24,
+      "test": 24
+    },
+    "om": {
+      "unique_hash_groups": 46,
+      "train": 32,
+      "val": 7,
+      "test": 7
+    },
+    "oui": {
+      "unique_hash_groups": 94,
+      "train": 66,
+      "val": 14,
+      "test": 14
+    },
+    "radio": {
+      "unique_hash_groups": 120,
+      "train": 84,
+      "val": 18,
+      "test": 18
+    },
+    "sbitar": {
+      "unique_hash_groups": 47,
+      "train": 33,
+      "val": 7,
+      "test": 7
+    },
+    "se7a": {
+      "unique_hash_groups": 118,
+      "train": 83,
+      "val": 18,
+      "test": 17
+    },
+    "sebt": {
+      "unique_hash_groups": 36,
+      "train": 25,
+      "val": 5,
+      "test": 6
+    },
+    "siye7a": {
+      "unique_hash_groups": 64,
+      "train": 45,
+      "val": 10,
+      "test": 9
+    },
+    "t7eb": {
+      "unique_hash_groups": 35,
+      "train": 30,
+      "val": 7,
+      "test": 8
+    },
+    "ta3lim": {
+      "unique_hash_groups": 76,
+      "train": 53,
+      "val": 11,
+      "test": 12
+    },
+    "ta3raf": {
+      "unique_hash_groups": 32,
+      "train": 22,
+      "val": 5,
+      "test": 5
+    },
+    "ta9ra": {
+      "unique_hash_groups": 39,
+      "train": 27,
+      "val": 6,
+      "test": 6
+    },
+    "taxi": {
+      "unique_hash_groups": 96,
+      "train": 67,
+      "val": 14,
+      "test": 15
+    },
+    "telvza": {
+      "unique_hash_groups": 30,
+      "train": 21,
+      "val": 4,
+      "test": 5
+    },
+    "tfol": {
+      "unique_hash_groups": 88,
+      "train": 62,
+      "val": 13,
+      "test": 13
+    },
+    "tha9afa": {
+      "unique_hash_groups": 70,
+      "train": 49,
+      "val": 10,
+      "test": 11
+    },
+    "thleth": {
+      "unique_hash_groups": 67,
+      "train": 47,
+      "val": 10,
+      "test": 10
+    },
+    "thnin": {
+      "unique_hash_groups": 47,
+      "train": 33,
+      "val": 7,
+      "test": 7
+    },
+    "train": {
+      "unique_hash_groups": 56,
+      "train": 39,
+      "val": 8,
+      "test": 9
+    },
+    "wzara": {
+      "unique_hash_groups": 81,
+      "train": 57,
+      "val": 12,
+      "test": 12
+    }
+  },
+  "warnings": [
+    "Class labels are inferred from the first folder below data-dir; verify this matches the official dataset layout.",
+    "Root-level images are excluded because their class label is unverified.",
+    "Identical file contents are kept in the same split; visually identical re-encodings are not detected.",
+    "Signer IDs are unavailable, so this is not signer-independent evaluation.",
+    "Classes with fewer than three unique hash groups cannot be represented in all three splits."
+  ]
+}

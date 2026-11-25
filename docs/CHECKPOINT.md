@@ -29,7 +29,7 @@ The project will NOT implement:
 - database
 - user management
 
-Node.js remains only as the frontend development/runtime toolchain for npm/Vite.
+Node.js remains the frontend runtime; pnpm manages the Vite and React dependencies.
 
 Architecture:
 

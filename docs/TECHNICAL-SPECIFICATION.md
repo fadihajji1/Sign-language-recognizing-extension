@@ -27,7 +27,7 @@ There is no application database.
 
 There is no Node.js backend.
 
-Node.js/npm remains part of the frontend development toolchain.
+Node.js with pnpm remains part of the frontend development toolchain.
 
 ## 2. Frontend
 

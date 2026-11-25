@@ -49,7 +49,7 @@ PyTorch image classifier (ResNet18 baseline)
 Dataset -> audit -> split -> preprocessing -> training -> evaluation
 ```
 
-No database is required for the first prototype. Node.js/npm will be
+No database is required for the first prototype. Node.js with pnpm will be
 needed for the React development tooling, not for the Python model
 service.
 
@@ -598,8 +598,8 @@ future local-AI words or characters. File upload is excluded by design.
 Phase 9 connects sampled camera frames to the local API and returns real
 model predictions. The UI is organized into `BrandHeader`,
 `CameraRecognition`, `RecognitionPanel`,
-`GeneratedOutput`, and `AboutNote` components. Bun install/run commands
-are in `setup.md`.
+`GeneratedOutput`, and `AboutNote` components. Manual pnpm install/run
+commands are in `setup.md`.
 
 ------------------------------------------------------------------------
 

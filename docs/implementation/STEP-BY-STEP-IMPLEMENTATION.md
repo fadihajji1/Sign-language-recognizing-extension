@@ -21,7 +21,7 @@ PyTorch classifier (ResNet18 baseline)
 W7CH dataset → audit → split → train → evaluate
 ```
 
-No database and no Node.js backend are needed. Node.js/npm are only for the React development tools.
+No database and no Node.js backend are needed. Node.js runs the React development tools; pnpm manages their dependencies.
 
 ## Beginner rules
 
